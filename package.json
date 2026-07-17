@@ -4,19 +4,16 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vinext dev",
-    "build": "vinext build && node scripts/copy-hosting.mjs",
-    "start": "vinext start"
+    "dev": "vite",
+    "build": "vite build && node scripts/copy-hosting.mjs",
+    "start": "vite preview"
   },
   "dependencies": {
     "react": "^19.2.6",
-    "react-dom": "^19.2.6",
-    "react-server-dom-webpack": "^19.2.6",
-    "vinext": "latest"
+    "react-dom": "^19.2.6"
   },
   "devDependencies": {
     "@vitejs/plugin-react": "latest",
-    "@vitejs/plugin-rsc": "latest",
     "vite": "^8.0.0"
   }
 }

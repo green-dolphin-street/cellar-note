@@ -113,16 +113,22 @@ export default function Home() {
     });
     setPreview(dataUrl);
 
-    const form = new FormData();
-    form.append("image", file);
     try {
-      const response = await fetch("/api/analyze", { method: "POST", body: form });
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.error || "분석에 실패했습니다.");
+      await new Promise((resolve) => setTimeout(resolve, 900));
+      const data = {
+        demo: true,
+        wine: {
+          name: "새 와인 (AI 연결 필요)", winery: "라벨에서 확인 필요", vintage: "", country: "미확인", region: "미확인",
+          grapes: [], type: "기타", confidence: 0, status: "확인 필요",
+          summary: "사진 업로드와 저장이 정상 동작했습니다. 다음 단계에서 실제 이미지 분석 API를 연결할 예정입니다.",
+          crowd: "와인이 식별되면 공개된 출처를 바탕으로 코멘트 경향을 요약합니다.",
+          funFact: "확인되지 않은 사실은 추측하지 않도록 설계했습니다.", pairing: "정보 확인 후 추천", sources: []
+        }
+      };
       const wine = { ...data.wine, id: `${Date.now()}`, image: dataUrl, color: "#7f2f45" };
       setWines((current) => [wine, ...current]);
       setSelected(wine);
-      setNotice(data.demo ? "현재 데모 분석입니다. OPENAI_API_KEY를 연결하면 실제 라벨을 분석합니다." : "AI 분석이 완료됐습니다. 저장 전에 내용을 확인해 주세요.");
+      setNotice("업로드·저장 데모가 완료됐습니다. 실제 AI 라벨 분석은 다음 단계에서 연결합니다.");
     } catch (error) {
       setNotice(error.message);
     } finally {
