@@ -19,6 +19,9 @@ const seedWines = [
     crowd: "대체로 ‘가격 대비 과실 풍미가 진하고 편하게 마시기 좋다’는 반응이 많습니다. 오크와 바닐라가 분명해 달큰하게 느낀다는 의견도 있습니다.",
     funFact: "이름 Mucho Más는 스페인어로 ‘훨씬 더’라는 뜻. 여러 스페인 산지의 오래된 포도나무를 블렌딩합니다.",
     pairing: "타파스 · 숙성 치즈 · 붉은 고기 · 초콜릿 디저트",
+    consumedFoods: ["초콜릿·견과류 디저트"],
+    foodNote: "사진 앞쪽에 초콜릿과 견과류를 올린 디저트가 함께 보입니다.",
+    foodConfidence: 88,
     sources: [
       { label: "생산자", url: "https://www.felixsolis.com/wine/mucho-mas/mucho-mas/" },
       { label: "커뮤니티", url: "https://www.vivino.com/en/felix-solis-mucho-mas-tinto/w/6266660?year=N.V" }
@@ -41,6 +44,9 @@ const seedWines = [
     crowd: "동일 병의 신뢰할 만한 다수 리뷰를 아직 확보하지 못했습니다. 일반적인 말보로 소비뇽 블랑의 인상과 혼동하지 않도록 보류했습니다.",
     funFact: "Marlborough는 뉴질랜드 소비뇽 블랑으로 세계적인 명성을 얻은 산지입니다. 다만 이것은 산지 정보이며 이 병의 개별 평가가 아닙니다.",
     pairing: "굴 · 흰살생선 · 허브 샐러드 · 염소 치즈",
+    consumedFoods: ["한식 요리"],
+    foodNote: "사진 아래쪽 음식이 일부만 보여 정확한 메뉴는 확인이 필요합니다.",
+    foodConfidence: 42,
     sources: [],
     color: "#9da04f"
   },
@@ -60,6 +66,9 @@ const seedWines = [
     crowd: "공식 소개는 풍부하고 구조감 있는 스타일을 강조합니다. 독립적인 사용자 코멘트가 충분하지 않아 ‘사람들의 평가’로 단정하지 않았습니다.",
     funFact: "숫자 30은 Red Deer Station의 산지별·스타일별 라인업을 구분하는 이름으로 쓰입니다.",
     pairing: "양갈비 · 바비큐 · 불고기 · 단단한 치즈",
+    consumedFoods: ["매운 한식 요리"],
+    foodNote: "붉은 양념의 음식과 고추가 보이지만 정확한 메뉴명은 확인이 필요합니다.",
+    foodConfidence: 63,
     sources: [
       { label: "생산자", url: "https://reddeerstation.com.au/" }
     ],
@@ -114,21 +123,27 @@ export default function Home() {
     setPreview(dataUrl);
 
     try {
-      await new Promise((resolve) => setTimeout(resolve, 900));
-      const data = {
-        demo: true,
-        wine: {
-          name: "새 와인 (AI 연결 필요)", winery: "라벨에서 확인 필요", vintage: "", country: "미확인", region: "미확인",
-          grapes: [], type: "기타", confidence: 0, status: "확인 필요",
-          summary: "사진 업로드와 저장이 정상 동작했습니다. 다음 단계에서 실제 이미지 분석 API를 연결할 예정입니다.",
-          crowd: "와인이 식별되면 공개된 출처를 바탕으로 코멘트 경향을 요약합니다.",
-          funFact: "확인되지 않은 사실은 추측하지 않도록 설계했습니다.", pairing: "정보 확인 후 추천", sources: []
-        }
-      };
+      let accessCode = sessionStorage.getItem("cellar-note-upload-code");
+      if (!accessCode) {
+        accessCode = window.prompt("AI 분석은 관리자 전용입니다. 업로드 코드를 입력하세요.");
+        if (!accessCode) throw new Error("업로드가 취소되었습니다.");
+      }
+      const response = await fetch("/api/analyze", {
+        method: "POST",
+        headers: { "content-type": "application/json", "x-upload-code": accessCode },
+        body: JSON.stringify({ image: dataUrl })
+      });
+      const data = await response.json();
+      if (response.status === 401) {
+        sessionStorage.removeItem("cellar-note-upload-code");
+        throw new Error("업로드 코드가 올바르지 않습니다.");
+      }
+      if (!response.ok) throw new Error(data.error || "AI 분석에 실패했습니다.");
+      sessionStorage.setItem("cellar-note-upload-code", accessCode);
       const wine = { ...data.wine, id: `${Date.now()}`, image: dataUrl, color: "#7f2f45" };
       setWines((current) => [wine, ...current]);
       setSelected(wine);
-      setNotice("업로드·저장 데모가 완료됐습니다. 실제 AI 라벨 분석은 다음 단계에서 연결합니다.");
+      setNotice("와인과 함께 먹은 음식까지 AI 분석을 완료했습니다. 내용을 확인해 주세요.");
     } catch (error) {
       setNotice(error.message);
     } finally {
@@ -208,6 +223,7 @@ export default function Home() {
           <article><span>02</span><div><h4>사람들은 이렇게 말해요</h4><p>{selected.crowd}</p></div></article>
           <article><span>03</span><div><h4>알아두면 재밌는 이야기</h4><p>{selected.funFact}</p></div></article>
           <article><span>04</span><div><h4>같이 먹기 좋은 것</h4><p>{selected.pairing}</p></div></article>
+          <article><span>05</span><div><h4>이날 실제로 함께 먹은 음식</h4><p>{selected.consumedFoods?.length ? selected.consumedFoods.join(" · ") : "사진에서 음식이 확인되지 않았습니다."}</p>{selected.foodNote && <small className="foodNote">AI 확신 {selected.foodConfidence ?? 0}% · {selected.foodNote}</small>}</div></article>
           {selected.sources?.length > 0 && <div className="sources">근거 {selected.sources.map(s => <a key={s.url} href={s.url} target="_blank" rel="noreferrer">{s.label} ↗</a>)}</div>}
           <div className="actions"><button onClick={() => {navigator.clipboard?.writeText(`${selected.name} — ${selected.summary}`); setNotice("요약을 복사했습니다.");}}>요약 복사</button><button className="danger" onClick={() => deleteWine(selected.id)}>기록 삭제</button></div>
         </div>
