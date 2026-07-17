@@ -50,8 +50,12 @@ export async function POST(request) {
     });
   }
 
-  const bytes = Buffer.from(await file.arrayBuffer());
-  const image = `data:${file.type};base64,${bytes.toString("base64")}`;
+  const bytes = new Uint8Array(await file.arrayBuffer());
+  let binary = "";
+  for (let start = 0; start < bytes.length; start += 8192) {
+    binary += String.fromCharCode(...bytes.subarray(start, start + 8192));
+  }
+  const image = `data:${file.type};base64,${btoa(binary)}`;
   const response = await fetch("https://api.openai.com/v1/responses", {
     method: "POST",
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${process.env.OPENAI_API_KEY}` },
