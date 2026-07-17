@@ -20,12 +20,12 @@ for (const name of ["sample1.jpg", "sample2.jpg", "sample3.jpg"]) {
 
 html = html.replace(
   /<script[^>]+src="[^"]+"[^>]*><\/script>/,
-  `<script type="module">${script.replaceAll("</script>", "<\\/script>")}</script>`
+  () => `<script type="module">${script.replaceAll("</script>", "<\\/script>")}</script>`
 );
 
 if (stylePath) {
   const style = await readFile(resolve("dist", stylePath.replace(/^\//, "")), "utf8");
-  html = html.replace(/<link[^>]+href="[^"]+\.css"[^>]*>/, `<style>${style}</style>`);
+  html = html.replace(/<link[^>]+href="[^"]+\.css"[^>]*>/, () => `<style>${style}</style>`);
 }
 
 await writeFile(
