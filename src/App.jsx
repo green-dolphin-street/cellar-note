@@ -1,242 +1,44 @@
-"use client";
-
 import { useEffect, useMemo, useRef, useState } from "react";
+import * as exifr from "exifr";
 
 const seedWines = [
-  {
-    id: "mucho-mas",
-    image: "/sample1.jpg",
-    name: "Mucho Más Tinto",
-    winery: "Félix Solís Avantis",
-    vintage: "NV",
-    country: "스페인",
-    region: "Vino de España",
-    grapes: ["Tempranillo", "Garnacha", "Syrah"],
-    type: "레드",
-    confidence: 96,
-    status: "확인됨",
-    summary: "잘 익은 검은 과실과 바닐라, 은은한 가죽·카카오가 겹치는 부드럽고 풍성한 스페인 레드 블렌드.",
-    crowd: "대체로 ‘가격 대비 과실 풍미가 진하고 편하게 마시기 좋다’는 반응이 많습니다. 오크와 바닐라가 분명해 달큰하게 느낀다는 의견도 있습니다.",
-    funFact: "이름 Mucho Más는 스페인어로 ‘훨씬 더’라는 뜻. 여러 스페인 산지의 오래된 포도나무를 블렌딩합니다.",
-    pairing: "타파스 · 숙성 치즈 · 붉은 고기 · 초콜릿 디저트",
-    consumedFoods: ["초콜릿·견과류 디저트"],
-    foodNote: "사진 앞쪽에 초콜릿과 견과류를 올린 디저트가 함께 보입니다.",
-    foodConfidence: 88,
-    sources: [
-      { label: "생산자", url: "https://www.felixsolis.com/wine/mucho-mas/mucho-mas/" },
-      { label: "커뮤니티", url: "https://www.vivino.com/en/felix-solis-mucho-mas-tinto/w/6266660?year=N.V" }
-    ],
-    color: "#8f223d"
-  },
-  {
-    id: "taka",
-    image: "/sample2.jpg",
-    name: "TAKĀ Sauvignon Blanc",
-    winery: "TAKĀ",
-    vintage: "2025",
-    country: "뉴질랜드",
-    region: "Marlborough",
-    grapes: ["Sauvignon Blanc"],
-    type: "화이트",
-    confidence: 91,
-    status: "부분 확인",
-    summary: "라벨에서 말보로 소비뇽 블랑과 2025 빈티지가 선명하게 확인됩니다. 생산자 상세와 테이스팅 정보는 추가 검증이 필요합니다.",
-    crowd: "동일 병의 신뢰할 만한 다수 리뷰를 아직 확보하지 못했습니다. 일반적인 말보로 소비뇽 블랑의 인상과 혼동하지 않도록 보류했습니다.",
-    funFact: "Marlborough는 뉴질랜드 소비뇽 블랑으로 세계적인 명성을 얻은 산지입니다. 다만 이것은 산지 정보이며 이 병의 개별 평가가 아닙니다.",
-    pairing: "굴 · 흰살생선 · 허브 샐러드 · 염소 치즈",
-    consumedFoods: ["한식 요리"],
-    foodNote: "사진 아래쪽 음식이 일부만 보여 정확한 메뉴는 확인이 필요합니다.",
-    foodConfidence: 42,
-    sources: [],
-    color: "#9da04f"
-  },
-  {
-    id: "red-deer",
-    image: "/sample3.jpg",
-    name: "Red Deer Station 30 Shiraz",
-    winery: "Red Deer Station",
-    vintage: "2019",
-    country: "호주",
-    region: "Langhorne Creek",
-    grapes: ["Shiraz"],
-    type: "레드",
-    confidence: 94,
-    status: "확인됨",
-    summary: "짙은 과실과 따뜻한 질감, 매끈한 피니시가 중심인 랭혼 크릭 쉬라즈.",
-    crowd: "공식 소개는 풍부하고 구조감 있는 스타일을 강조합니다. 독립적인 사용자 코멘트가 충분하지 않아 ‘사람들의 평가’로 단정하지 않았습니다.",
-    funFact: "숫자 30은 Red Deer Station의 산지별·스타일별 라인업을 구분하는 이름으로 쓰입니다.",
-    pairing: "양갈비 · 바비큐 · 불고기 · 단단한 치즈",
-    consumedFoods: ["매운 한식 요리"],
-    foodNote: "붉은 양념의 음식과 고추가 보이지만 정확한 메뉴명은 확인이 필요합니다.",
-    foodConfidence: 63,
-    sources: [
-      { label: "생산자", url: "https://reddeerstation.com.au/" }
-    ],
-    color: "#6e2434"
-  }
+  {id:"mucho-mas",image:"/sample1.jpg",name:"Mucho Más Tinto",winery:"Félix Solís Avantis",vintage:"NV",country:"스페인",region:"Vino de España",appellation:"",grapes:["Tempranillo","Garnacha","Syrah"],type:"레드",confidence:96,status:"확인됨",summary:"검은 과실과 바닐라가 겹치는 부드러운 스페인 레드 블렌드.",crowd:"과실 풍미가 진하고 편하게 마시기 좋다는 반응이 많습니다.",funFact:"Mucho Más는 스페인어로 ‘훨씬 더’라는 뜻입니다.",pairing:"타파스 · 숙성 치즈 · 붉은 고기",consumedFoods:["초콜릿·견과류 디저트"],foodNote:"사진에서 디저트가 함께 보입니다.",foodConfidence:88,consumedDate:"",location:"",vivinoRating:"",vivinoUrl:"https://www.vivino.com/en/felix-solis-mucho-mas-tinto/w/6266660",wsScore:"",officialUrl:"https://www.felixsolis.com/wine/mucho-mas/mucho-mas/",priceKrw:"",purchasedAt:"",alcohol:"",personalRating:"",sources:[]},
+  {id:"taka",image:"/sample2.jpg",name:"TAKĀ Sauvignon Blanc",winery:"TAKĀ",vintage:"2025",country:"뉴질랜드",region:"Marlborough",appellation:"",grapes:["Sauvignon Blanc"],type:"화이트",confidence:91,status:"부분 확인",summary:"선명한 산도와 허브·열대과실 인상이 기대되는 말보로 소비뇽 블랑.",crowd:"동일 병의 충분한 리뷰는 아직 확인하지 못했습니다.",funFact:"Marlborough는 뉴질랜드 소비뇽 블랑의 대표 산지입니다.",pairing:"굴 · 흰살생선 · 허브 샐러드",consumedFoods:["한식 요리"],foodNote:"음식 일부만 보여 정확한 메뉴 확인이 필요합니다.",foodConfidence:42,consumedDate:"",location:"",vivinoRating:"",vivinoUrl:"",wsScore:"",officialUrl:"",priceKrw:"",purchasedAt:"",alcohol:"",personalRating:"",sources:[]},
+  {id:"red-deer",image:"/sample3.jpg",name:"Red Deer Station 30 Shiraz",winery:"Red Deer Station",vintage:"2019",country:"호주",region:"Langhorne Creek",appellation:"",grapes:["Shiraz"],type:"레드",confidence:94,status:"확인됨",summary:"짙은 과실과 따뜻한 질감, 매끈한 피니시가 중심인 쉬라즈.",crowd:"공식 소개는 풍부하고 구조감 있는 스타일을 강조합니다.",funFact:"숫자 30은 산지·스타일별 라인업을 구분하는 이름입니다.",pairing:"양갈비 · 바비큐 · 불고기",consumedFoods:["매운 한식 요리"],foodNote:"붉은 양념 음식이 보입니다.",foodConfidence:63,consumedDate:"",location:"",vivinoRating:"",vivinoUrl:"",wsScore:"",officialUrl:"https://reddeerstation.com.au/",priceKrw:"",purchasedAt:"",alcohol:"",personalRating:"",sources:[]}
 ];
+const types=["전체","레드","화이트","로제","스파클링","주정강화","기타"];
+const blank="—";
 
-export default function Home() {
-  const [wines, setWines] = useState(seedWines);
-  const [selected, setSelected] = useState(seedWines[0]);
-  const [query, setQuery] = useState("");
-  const [filter, setFilter] = useState("전체");
-  const [uploading, setUploading] = useState(false);
-  const [notice, setNotice] = useState("");
-  const [preview, setPreview] = useState(null);
-  const fileRef = useRef(null);
-
-  useEffect(() => {
-    const saved = localStorage.getItem("cellar-note-wines");
-    if (saved) {
-      try {
-        const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length) setWines(parsed);
-      } catch {}
-    }
-  }, []);
-
-  useEffect(() => {
-    localStorage.setItem("cellar-note-wines", JSON.stringify(wines));
-  }, [wines]);
-
-  const filtered = useMemo(() => wines.filter((wine) => {
-    const inFilter = filter === "전체" || wine.type === filter;
-    const text = `${wine.name} ${wine.winery} ${wine.country} ${wine.region}`.toLowerCase();
-    return inFilter && text.includes(query.toLowerCase());
-  }), [wines, filter, query]);
-
-  async function handleFile(file) {
-    if (!file) return;
-    if (!file.type.startsWith("image/")) {
-      setNotice("이미지 파일만 올려주세요.");
-      return;
-    }
-    setUploading(true);
-    setNotice("");
-    const dataUrl = await new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => resolve(reader.result);
-      reader.onerror = reject;
-      reader.readAsDataURL(file);
-    });
-    setPreview(dataUrl);
-
-    try {
-      let accessCode = sessionStorage.getItem("cellar-note-upload-code");
-      if (!accessCode) {
-        accessCode = window.prompt("AI 분석은 관리자 전용입니다. 업로드 코드를 입력하세요.");
-        if (!accessCode) throw new Error("업로드가 취소되었습니다.");
-      }
-      const response = await fetch("/api/analyze", {
-        method: "POST",
-        headers: { "content-type": "application/json", "x-upload-code": accessCode },
-        body: JSON.stringify({ image: dataUrl })
-      });
-      const data = await response.json();
-      if (response.status === 401) {
-        sessionStorage.removeItem("cellar-note-upload-code");
-        throw new Error("업로드 코드가 올바르지 않습니다.");
-      }
-      if (!response.ok) throw new Error(data.error || "AI 분석에 실패했습니다.");
-      sessionStorage.setItem("cellar-note-upload-code", accessCode);
-      const wine = { ...data.wine, id: `${Date.now()}`, image: dataUrl, color: "#7f2f45" };
-      setWines((current) => [wine, ...current]);
-      setSelected(wine);
-      setNotice("와인과 함께 먹은 음식까지 AI 분석을 완료했습니다. 내용을 확인해 주세요.");
-    } catch (error) {
-      setNotice(error.message);
-    } finally {
-      setUploading(false);
-    }
-  }
-
-  function deleteWine(id) {
-    const next = wines.filter((wine) => wine.id !== id);
-    setWines(next);
-    setSelected(next[0] || null);
-  }
-
-  return (
-    <main>
-      <header className="topbar">
-        <a className="brand" href="#"><span className="brandMark">C</span><span>Cellar Note <i>AI</i></span></a>
-        <button className="avatar" aria-label="프로필">MY</button>
-      </header>
-
-      <section className="hero">
-        <div className="heroCopy">
-          <span className="eyebrow">YOUR PRIVATE WINE MEMORY</span>
-          <h1>마신 와인은 잊혀져도,<br/><em>취향은 남도록.</em></h1>
-          <p>라벨 사진 한 장이면 산지부터 품종, 사람들의 코멘트까지.<br/>AI가 정리하고 당신은 그 순간만 기억하세요.</p>
-          <button className="primary" onClick={() => fileRef.current?.click()}>
-            <span>＋</span> 새 와인 기록하기
-          </button>
-          <input ref={fileRef} hidden type="file" accept="image/*" capture="environment" onChange={(e) => handleFile(e.target.files?.[0])}/>
-          <div className="stats"><b>{wines.length}</b><span>기록한 와인</span><b>{new Set(wines.map(w => w.country)).size}</b><span>여행한 산지</span></div>
-        </div>
-        <div className="heroVisual">
-          <div className="stamp">AI<br/><span>LABEL<br/>SCAN</span></div>
-          <img src="/sample1.jpg" alt="Mucho Más wine bottle"/>
-          <div className="scanline"/>
-          <div className="floatCard"><span>96% MATCH</span><b>Mucho Más</b><small>Félix Solís · Spain</small></div>
-        </div>
-      </section>
-
-      <section className="library">
-        <div className="sectionHead">
-          <div><span className="eyebrow">MY COLLECTION</span><h2>나의 와인 셀러</h2></div>
-          <label className="search">⌕<input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="와인명, 산지 검색"/></label>
-        </div>
-        <div className="filters">
-          {["전체", "레드", "화이트", "스파클링"].map((item) => <button key={item} className={filter === item ? "active" : ""} onClick={() => setFilter(item)}>{item}</button>)}
-        </div>
-        <div className="grid">
-          {filtered.map((wine, index) => (
-            <button className="wineCard" key={wine.id} onClick={() => setSelected(wine)}>
-              <div className="photo"><img src={wine.image} alt={wine.name}/><span>{String(index + 1).padStart(2, "0")}</span><i>{wine.status}</i></div>
-              <div className="cardBody">
-                <small>{wine.country} · {wine.region}</small>
-                <h3>{wine.name}</h3>
-                <p>{wine.winery} {wine.vintage && `· ${wine.vintage}`}</p>
-                <div className="tags">{wine.grapes?.slice(0, 2).map(g => <span key={g}>{g}</span>)}</div>
-              </div>
-            </button>
-          ))}
-          <button className="addCard" onClick={() => fileRef.current?.click()}><span>＋</span><b>새로운 병을 열었나요?</b><small>사진으로 기록 추가</small></button>
-        </div>
-      </section>
-
-      {selected && <section className="detail">
-        <button className="close" onClick={() => setSelected(null)}>×</button>
-        <div className="detailImage"><img src={selected.image} alt={selected.name}/><span style={{background:selected.color}}>{selected.confidence}%<small>AI 신뢰도</small></span></div>
-        <div className="detailBody">
-          <div className="detailMeta">{selected.country} / {selected.region} <i>{selected.status}</i></div>
-          <h2>{selected.name}</h2>
-          <p className="producer">{selected.winery} · {selected.vintage}</p>
-          <div className="facts">
-            <div><small>TYPE</small><b>{selected.type}</b></div>
-            <div><small>GRAPE</small><b>{selected.grapes?.join(", ")}</b></div>
-            <div><small>REGION</small><b>{selected.region}</b></div>
-          </div>
-          <article><span>01</span><div><h4>한 잔 요약</h4><p>{selected.summary}</p></div></article>
-          <article><span>02</span><div><h4>사람들은 이렇게 말해요</h4><p>{selected.crowd}</p></div></article>
-          <article><span>03</span><div><h4>알아두면 재밌는 이야기</h4><p>{selected.funFact}</p></div></article>
-          <article><span>04</span><div><h4>같이 먹기 좋은 것</h4><p>{selected.pairing}</p></div></article>
-          <article><span>05</span><div><h4>이날 실제로 함께 먹은 음식</h4><p>{selected.consumedFoods?.length ? selected.consumedFoods.join(" · ") : "사진에서 음식이 확인되지 않았습니다."}</p>{selected.foodNote && <small className="foodNote">AI 확신 {selected.foodConfidence ?? 0}% · {selected.foodNote}</small>}</div></article>
-          {selected.sources?.length > 0 && <div className="sources">근거 {selected.sources.map(s => <a key={s.url} href={s.url} target="_blank" rel="noreferrer">{s.label} ↗</a>)}</div>}
-          <div className="actions"><button onClick={() => {navigator.clipboard?.writeText(`${selected.name} — ${selected.summary}`); setNotice("요약을 복사했습니다.");}}>요약 복사</button><button className="danger" onClick={() => deleteWine(selected.id)}>기록 삭제</button></div>
-        </div>
-      </section>}
-
-      <section className="uploadStrip">
-        <div><span className="eyebrow">SNAP. SCAN. REMEMBER.</span><h2>사진 한 장이면 충분해요.</h2><p>휴대폰 카메라로 라벨을 찍거나 앨범에서 선택하세요.</p></div>
-        <button className="primary light" onClick={() => fileRef.current?.click()}>{uploading ? "분석 중…" : "카메라 열기 →"}</button>
-      </section>
-
-      {preview && uploading && <div className="loading"><img src={preview} alt="분석 중"/><div><b>라벨을 읽고 있어요</b><span>와이너리 · 지역 · 품종 찾는 중</span></div></div>}
-      {notice && <button className="toast" onClick={() => setNotice("")}>{notice}<span>×</span></button>}
-      <footer>Cellar Note AI <span>사진에서 시작되는 와인 다이어리</span><small>AI 정보는 틀릴 수 있으니 라벨과 출처를 확인하세요.</small></footer>
-    </main>
-  );
+export default function App(){
+  const [wines,setWines]=useState(seedWines),[selected,setSelected]=useState(null);
+  const [query,setQuery]=useState(""),[type,setType]=useState("전체"),[country,setCountry]=useState("전체"),[region,setRegion]=useState("전체"),[grape,setGrape]=useState("전체");
+  const [notice,setNotice]=useState(""),[uploading,setUploading]=useState(false),[preview,setPreview]=useState(""),[account,setAccount]=useState(false),[code,setCode]=useState("");
+  const cameraRef=useRef(), albumRef=useRef();
+  useEffect(()=>{try{const s=JSON.parse(localStorage.getItem("cellar-note-wines"));if(s?.length)setWines(s)}catch{}},[]);
+  useEffect(()=>localStorage.setItem("cellar-note-wines",JSON.stringify(wines)),[wines]);
+  const values=(key)=>["전체",...new Set(wines.flatMap(w=>key==="grapes"?(w.grapes||[]):[w[key]]).filter(Boolean))];
+  const countries=values("country"), regions=["전체",...new Set(wines.filter(w=>country==="전체"||w.country===country).map(w=>w.region).filter(Boolean))], grapes=values("grapes");
+  const filtered=useMemo(()=>wines.filter(w=>(type==="전체"||w.type===type)&&(country==="전체"||w.country===country)&&(region==="전체"||w.region===region)&&(grape==="전체"||w.grapes?.includes(grape))&&`${w.name} ${w.winery} ${w.country} ${w.region} ${w.grapes?.join(" ")}`.toLowerCase().includes(query.toLowerCase())),[wines,type,country,region,grape,query]);
+  const unlocked=()=>!!sessionStorage.getItem("cellar-note-upload-code");
+  const choose=(ref)=>{if(!unlocked()){setAccount(true);setNotice("사진 업로드는 MY에서 먼저 로그인해 주세요.");return}ref.current?.click()};
+  async function login(e){e.preventDefault();const r=await fetch("/api/auth",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({code})});if(r.ok){sessionStorage.setItem("cellar-note-upload-code",code);setAccount(false);setCode("");setNotice("이 브라우저 세션에서 업로드가 허용되었습니다.")}else setNotice("로그인 정보가 올바르지 않습니다.")}
+  async function metadata(file){try{const x=await exifr.parse(file,{gps:true,exif:true,tiff:true});const d=x?.DateTimeOriginal||x?.CreateDate||new Date(file.lastModified);const date=d?new Date(d).toISOString().slice(0,10):"";const lat=x?.latitude,lon=x?.longitude;return{consumedDate:date,location:Number.isFinite(lat)?`${lat.toFixed(5)}, ${lon.toFixed(5)}`:"",gps:Number.isFinite(lat)?{latitude:lat,longitude:lon}:null}}catch{return{consumedDate:new Date(file.lastModified).toISOString().slice(0,10),location:"",gps:null}}}
+  async function handleFile(file){if(!file)return;setUploading(true);setNotice("");const image=await new Promise((ok,no)=>{const r=new FileReader;r.onload=()=>ok(r.result);r.onerror=no;r.readAsDataURL(file)});setPreview(image);try{const meta=await metadata(file),access=sessionStorage.getItem("cellar-note-upload-code");const r=await fetch("/api/analyze",{method:"POST",headers:{"content-type":"application/json","x-upload-code":access||""},body:JSON.stringify({image,metadata:meta})});const d=await r.json();if(r.status===401){sessionStorage.removeItem("cellar-note-upload-code");setAccount(true)}if(!r.ok)throw Error(d.error||"분석에 실패했습니다.");const wine={...d.wine,...meta,id:String(Date.now()),image};setWines(v=>[wine,...v]);setSelected(wine);setNotice("새 기록을 추가했습니다. AI가 읽은 내용을 확인해 주세요.")}catch(e){setNotice(e.message)}finally{setUploading(false)}}
+  const Field=({label,value,link})=><div className="field"><small>{label}</small>{link&&value?<a href={link} target="_blank" rel="noreferrer">{value} ↗</a>:<b>{value||blank}</b>}</div>;
+  return <main>
+    <header><a className="brand" href="#">Cellar Note</a><button className="my" onClick={()=>setAccount(true)}>MY</button></header>
+    <section className="hero"><div><h1>와타시,<br/>이 와인들을 잊고싶지 않아...</h1><p>마신 병과 그날의 한 끼를 한곳에 기록합니다.</p><div className="uploadActions"><button onClick={()=>choose(cameraRef)}>사진 찍기</button><button className="quiet" onClick={()=>choose(albumRef)}>앨범에서 선택</button></div></div><img src="/dionysus-hero.png" alt="포도와 디오니소스 일러스트"/></section>
+    <input hidden ref={cameraRef} type="file" accept="image/*" capture="environment" onChange={e=>handleFile(e.target.files?.[0])}/><input hidden ref={albumRef} type="file" accept="image/*" onChange={e=>handleFile(e.target.files?.[0])}/>
+    <section className="collection"><div className="titleRow"><h2>나의 와인 <span>{wines.length}</span></h2><input value={query} onChange={e=>setQuery(e.target.value)} placeholder="이름, 산지, 품종 검색"/></div>
+      <div className="typeFilters">{types.map(x=><button className={type===x?"active":""} onClick={()=>setType(x)} key={x}>{x}</button>)}</div>
+      <div className="selectFilters"><label>국가<select value={country} onChange={e=>{setCountry(e.target.value);setRegion("전체")}}>{countries.map(x=><option key={x}>{x}</option>)}</select></label><label>지역·떼루아<select value={region} onChange={e=>setRegion(e.target.value)}>{regions.map(x=><option key={x}>{x}</option>)}</select></label><label>품종<select value={grape} onChange={e=>setGrape(e.target.value)}>{grapes.map(x=><option key={x}>{x}</option>)}</select></label></div>
+      <div className="grid">{filtered.map(w=><button className="card" key={w.id} onClick={()=>setSelected(w)}><img src={w.image}/><div><small>{w.country} · {w.region}</small><h3>{w.name}</h3><p>{w.winery} {w.vintage&&`· ${w.vintage}`}</p></div></button>)}<button className="add" onClick={()=>choose(albumRef)}>＋<span>기록 추가</span></button></div>
+    </section>
+    {selected&&<div className="overlay" onClick={()=>setSelected(null)}><section className="detail" onClick={e=>e.stopPropagation()}><button className="x" onClick={()=>setSelected(null)}>×</button><img className="detailPhoto" src={selected.image}/><div className="detailBody"><small>{selected.country} / {selected.region}</small><h2>{selected.name}</h2><p>{selected.winery} · {selected.vintage||blank}</p><div className="fields"><Field label="품종" value={selected.grapes?.join(", ")}/><Field label="아펠라시옹·떼루아" value={selected.appellation}/><Field label="마신 날짜" value={selected.consumedDate}/><Field label="장소·GPS" value={selected.location}/><Field label="가격 (KRW)" value={selected.priceKrw}/><Field label="구매처" value={selected.purchasedAt}/><Field label="Vivino" value={selected.vivinoRating} link={selected.vivinoUrl}/><Field label="Wine Spectator" value={selected.wsScore}/><Field label="도수" value={selected.alcohol}/><Field label="내 점수" value={selected.personalRating}/><Field label="공식 페이지" value={selected.officialUrl?"열기":""} link={selected.officialUrl}/></div>
+      {[["한 잔 요약",selected.summary],["사람들의 코멘트",selected.crowd],["재미있는 정보",selected.funFact],["추천 페어링",selected.pairing],["그날 함께 먹은 음식",selected.consumedFoods?.join(" · ")||"확인되지 않음"]].map(([a,b])=><article key={a}><h4>{a}</h4><p>{b||blank}</p></article>)}
+      <button className="delete" onClick={()=>{setWines(v=>v.filter(w=>w.id!==selected.id));setSelected(null)}}>기록 삭제</button></div></section></div>}
+    {account&&<div className="overlay"><form className="account" onSubmit={login}><button type="button" className="x" onClick={()=>setAccount(false)}>×</button><h2>MY</h2><p>공개 열람은 누구나 가능하고, 사진 분석만 로그인이 필요합니다.</p>{unlocked()?<><b>업로드 로그인 상태</b><button type="button" className="quiet" onClick={()=>{sessionStorage.removeItem("cellar-note-upload-code");setNotice("로그아웃했습니다.");setAccount(false)}}>로그아웃</button></>:<><label>관리자 로그인<input type="password" value={code} onChange={e=>setCode(e.target.value)} required/></label><button>로그인</button><small>현재는 임시 관리자 인증입니다. 인증 지원 호스팅으로 전환한 뒤 ChatGPT 로그인으로 교체할 예정입니다.</small></>}</form></div>}
+    {uploading&&<div className="loading"><img src={preview}/><b>라벨과 사진을 읽고 있어요…</b></div>}{notice&&<button className="toast" onClick={()=>setNotice("")}>{notice} ×</button>}
+    <footer>Cellar Note <span>AI 결과는 틀릴 수 있으니 라벨과 출처를 확인하세요.</span></footer>
+  </main>
 }
