@@ -1,0 +1,7 @@
+# Private operational notes and secrets
+PRIVATE_PROJECT_NOTES.md
+
+# JavaScript build output
+node_modules/
+dist/
+
