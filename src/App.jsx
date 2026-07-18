@@ -6,6 +6,12 @@ const seedWines = [
   {id:"taka",image:"/sample2.jpg",name:"TAKĀ Sauvignon Blanc",winery:"TAKĀ",vintage:"2025",country:"뉴질랜드",region:"Marlborough",appellation:"",grapes:["Sauvignon Blanc"],type:"화이트",confidence:91,status:"부분 확인",summary:"선명한 산도와 허브·열대과실 인상이 기대되는 말보로 소비뇽 블랑.",crowd:"동일 병의 충분한 리뷰는 아직 확인하지 못했습니다.",funFact:"Marlborough는 뉴질랜드 소비뇽 블랑의 대표 산지입니다.",pairing:"굴 · 흰살생선 · 허브 샐러드",consumedFoods:["한식 요리"],foodNote:"음식 일부만 보여 정확한 메뉴 확인이 필요합니다.",foodConfidence:42,consumedDate:"",location:"",vivinoRating:"",vivinoUrl:"",wsScore:"",officialUrl:"",priceKrw:"",purchasedAt:"",alcohol:"",personalRating:"",sources:[]},
   {id:"red-deer",image:"/sample3.jpg",name:"Red Deer Station 30 Shiraz",winery:"Red Deer Station",vintage:"2019",country:"호주",region:"Langhorne Creek",appellation:"",grapes:["Shiraz"],type:"레드",confidence:94,status:"확인됨",summary:"짙은 과실과 따뜻한 질감, 매끈한 피니시가 중심인 쉬라즈.",crowd:"공식 소개는 풍부하고 구조감 있는 스타일을 강조합니다.",funFact:"숫자 30은 산지·스타일별 라인업을 구분하는 이름입니다.",pairing:"양갈비 · 바비큐 · 불고기",consumedFoods:["매운 한식 요리"],foodNote:"붉은 양념 음식이 보입니다.",foodConfidence:63,consumedDate:"",location:"",vivinoRating:"",vivinoUrl:"",wsScore:"",officialUrl:"https://reddeerstation.com.au/",priceKrw:"",purchasedAt:"",alcohol:"",personalRating:"",sources:[]}
 ];
+const knownDetails = {
+  "mucho-mas": {appellation:"Vino de España · 스페인 여러 산지 블렌드",vivinoRating:"4.1",vivinoUrl:"https://www.vivino.com/en/felix-solis-mucho-mas-tinto/w/6266660",officialUrl:"https://www.felixsolis.com/wine/mucho-mas/mucho-mas-tinto/",alcohol:"13.5%"},
+  taka: {appellation:"Marlborough",vivinoRating:"4.5",vivinoUrl:"https://www.vivino.com/en/taka-marlborough-sauvignon-blanc/w/3001081",officialUrl:"https://www.takawinenz.com/",alcohol:"13%",crowd:"열대과실·시트러스·구스베리와 산뜻한 산도가 반복해서 언급됩니다.",funFact:"TAKĀ는 마오리어로 낚싯바늘과 줄을 잇는 실을 뜻합니다."},
+  "red-deer": {appellation:"Langhorne Creek GI · South Australia",vivinoRating:"4.0",vivinoUrl:"https://www.vivino.com/en/red-deer-station-thirty-shiraz/w/10462802",officialUrl:"https://reddeerstation.com.au/#wines",alcohol:"14%",funFact:"숫자 30은 Langhorne Creek 산지의 라인업을 구분하는 이름입니다."}
+};
+seedWines.forEach(wine => Object.assign(wine, knownDetails[wine.id] || {}));
 const types=["전체","레드","화이트","로제","스파클링","주정강화","기타"];
 const blank="—";
 
@@ -14,7 +20,7 @@ export default function App(){
   const [query,setQuery]=useState(""),[type,setType]=useState("전체"),[country,setCountry]=useState("전체"),[region,setRegion]=useState("전체"),[grape,setGrape]=useState("전체");
   const [notice,setNotice]=useState(""),[uploading,setUploading]=useState(false),[preview,setPreview]=useState(""),[account,setAccount]=useState(false),[code,setCode]=useState("");
   const cameraRef=useRef(), albumRef=useRef();
-  useEffect(()=>{try{const s=JSON.parse(localStorage.getItem("cellar-note-wines"));if(s?.length)setWines(s)}catch{}},[]);
+  useEffect(()=>{try{const saved=JSON.parse(localStorage.getItem("cellar-note-wines"));if(saved?.length)setWines(saved.map(w=>{const base=seedWines.find(s=>s.id===w.id);if(!base)return w;const merged={...base,...w};for(const key of Object.keys(base))if(merged[key]===""||merged[key]==null)merged[key]=base[key];return merged}))}catch{}},[]);
   useEffect(()=>localStorage.setItem("cellar-note-wines",JSON.stringify(wines)),[wines]);
   const values=(key)=>["전체",...new Set(wines.flatMap(w=>key==="grapes"?(w.grapes||[]):[w[key]]).filter(Boolean))];
   const countries=values("country"), regions=["전체",...new Set(wines.filter(w=>country==="전체"||w.country===country).map(w=>w.region).filter(Boolean))], grapes=values("grapes");
