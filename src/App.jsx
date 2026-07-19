@@ -20,7 +20,7 @@ export default function App(){
   const [query,setQuery]=useState(""),[type,setType]=useState("전체"),[country,setCountry]=useState("전체"),[region,setRegion]=useState("전체"),[grape,setGrape]=useState("전체");
   const [notice,setNotice]=useState(""),[preview,setPreview]=useState(""),[account,setAccount]=useState(false),[uploading,setUploading]=useState(false),[code,setCode]=useState("");
   const [syncing,setSyncing]=useState(false),[serverReady,setServerReady]=useState(false),[hydrated,setHydrated]=useState(false),[trash,setTrash]=useState([]);
-  const cameraRef=useRef(), albumRef=useRef(), busyRef=useRef(false);
+  const cameraRef=useRef(), albumRef=useRef(), busyRef=useRef(false), migrationRef=useRef(false);
   useEffect(()=>{(async()=>{let local=[];try{const raw=localStorage.getItem("cellar-note-wines")||"[]";local=JSON.parse(raw);if(!localStorage.getItem("cellar-note-legacy-wines"))localStorage.setItem("cellar-note-legacy-wines",raw)}catch{}try{const response=await fetch("/api/wines"),data=await response.json();if(!response.ok)throw Error(data.error);setWines(data.wines?.length?data.wines:(local.length?local:seedWines));setServerReady(true)}catch{if(local.length)setWines(local)}finally{setHydrated(true)}})()},[]);
   useEffect(()=>{if(hydrated)localStorage.setItem("cellar-note-wines",JSON.stringify(wines))},[wines,hydrated]);
   const values=(key)=>["전체",...new Set(wines.flatMap(w=>key==="grapes"?(w.grapes||[]):[w[key]]).filter(Boolean))];
@@ -41,6 +41,7 @@ export default function App(){
   }
   async function loadTrash(){const response=await fetch("/api/trash",{headers:{"x-upload-code":sessionStorage.getItem("cellar-note-upload-code")||""}}),data=await response.json();if(response.ok)setTrash(data.wines||[])}
   useEffect(()=>{if(account&&unlocked())loadTrash()},[account]);
+  useEffect(()=>{if(hydrated&&unlocked()&&!migrationRef.current&&!localStorage.getItem("cellar-note-migrated-v1")){migrationRef.current=true;syncThisDevice()}},[hydrated]);
   async function restore(id){const response=await fetch(`/api/wines/${encodeURIComponent(id)}/restore`,{method:"POST",headers:{"x-upload-code":sessionStorage.getItem("cellar-note-upload-code")||""}}),data=await response.json();if(!response.ok){setNotice(data.error||"복원하지 못했습니다.");return}setTrash(items=>items.filter(item=>item.id!==id));await loadSharedWines();setNotice("와인 기록을 복원했습니다.")}
   async function login(e){e.preventDefault();const r=await fetch("/api/auth",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({code})});if(r.ok){sessionStorage.setItem("cellar-note-upload-code",code);setCode("");if(!localStorage.getItem("cellar-note-migrated-v1"))await syncThisDevice();else{await loadSharedWines();setNotice("사진 분석 로그인이 완료되었습니다.")}setAccount(false)}else setNotice("로그인 정보가 올바르지 않습니다.")}
   async function metadata(file){try{const x=await exifr.parse(file,{gps:true,exif:true,tiff:true});const d=x?.DateTimeOriginal||x?.CreateDate||new Date(file.lastModified);const date=d?new Date(d).toISOString().slice(0,10):"";const lat=x?.latitude,lon=x?.longitude;return{consumedDate:date,location:Number.isFinite(lat)?`${lat.toFixed(5)}, ${lon.toFixed(5)}`:"",gps:Number.isFinite(lat)?{latitude:lat,longitude:lon}:null}}catch{return{consumedDate:new Date(file.lastModified).toISOString().slice(0,10),location:"",gps:null}}}
