@@ -88,6 +88,6 @@ export default function App(){
     {account&&<div className="overlay"><form className="account" onSubmit={login}><button type="button" className="x" onClick={()=>setAccount(false)}>×</button><h2>MY</h2><p>공개 열람은 누구나 가능하고 사진 분석과 기록 변경만 로그인이 필요합니다.</p>{unlocked()?<><b>{syncing?"기존 기록 자동 동기화 중…":serverReady?"공용 보관함 연결됨":"이 기기의 임시 기록을 표시 중"}</b><small>새 등록과 삭제는 모든 기기에 즉시 반영됩니다.</small><small>이번 달 이 브라우저의 예상 사용액: ${(JSON.parse(localStorage.getItem("cellar-note-usage")||"{}")[new Date().toISOString().slice(0,7)]||0).toFixed(3)}</small>{trash.length>0&&<div className="trash"><b>최근 삭제</b>{trash.map(item=><div key={item.id}><span>{item.name}<small>{Math.max(0,15-Math.floor((Date.now()-new Date(item.deletedAt))/86400000))}일 안에 복원 가능</small></span><button type="button" onClick={()=>restore(item.id)}>복원</button></div>)}</div>}<button type="button" className="quiet" onClick={()=>{sessionStorage.removeItem("cellar-note-upload-code");setAccount(false)}}>로그아웃</button></>:<><label>관리자 로그인<input type="password" value={code} onChange={e=>setCode(e.target.value)} required/></label><button>로그인</button></>}</form></div>}
     {uploading&&<div className="loading"><img src={preview} alt="분석 중"/><b>사진을 줄이고 와인을 분석하고 있어요…</b></div>}
     {notice&&<button className="toast" onClick={()=>setNotice("")}>{notice} ×</button>}
-    <footer>Cellar Note <span>AI 결과는 틀릴 수 있으니 라벨과 출처를 확인하세요.</span></footer>
+    <footer>Cellar Note <span>AI 결과는 틀릴 수 있으니 라벨과 출처를 확인하세요. 장소명 © OpenStreetMap contributors.</span></footer>
   </main>
 }
