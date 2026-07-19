@@ -71,7 +71,7 @@ async function placeName(gps){
  try{const u="https://nominatim.openstreetmap.org/reverse?format=jsonv2&addressdetails=1&zoom=16&accept-language=ko&lat="+gps.latitude+"&lon="+gps.longitude,r=await fetch(u,{headers:{"user-agent":"CellarNote/1.0 (personal wine journal)"}});if(!r.ok)return "";const x=await r.json(),a=x.address||{};return [a.country,a.city||a.town||a.county,a.suburb||a.borough||a.neighbourhood].filter((v,i,list)=>v&&list.indexOf(v)===i).join(" ")}catch{return ""}
 }
 async function enrichWine(request,env,id){
- if(!allowed(request.headers.get("x-upload-code"),env))return json({error:"보충 권한이 없습니다."},401);
+ const maintenance=request.headers.get("x-maintenance-token");if(!allowed(request.headers.get("x-upload-code"),env)&&(!env.MAINTENANCE_TOKEN||maintenance!==env.MAINTENANCE_TOKEN))return json({error:"보충 권한이 없습니다."},401);
  if(!env.OPENAI_API_KEY||!dbReady(env))return json({error:"AI 또는 DB가 연결되지 않았습니다."},503);
  const safe=String(id).replace(/[^a-zA-Z0-9_-]/g,"-"),found=await dbFetch(env,"/rest/v1/wines?select=id,data,image_url&id=eq."+encodeURIComponent(safe)+"&deleted_at=is.null");
  if(!found.ok)return json({error:"기록을 읽지 못했습니다."},502);const rows=await found.json();if(!rows.length)return json({error:"기록이 없습니다."},404);
