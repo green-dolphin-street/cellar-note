@@ -1,0 +1,36 @@
+.detail,.detailBody,.field,.detail article{min-width:0}
+.detailBody h2,.detailBody>p,.detail article p,.field b,.field a{overflow-wrap:anywhere;word-break:break-word}
+.detail article a{color:#7f2942;text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:3px}
+.sourceLinks{display:flex;flex-wrap:wrap;gap:8px;padding-top:22px;border-top:1px solid #d8d0c4}
+.sourceLinks small{flex-basis:100%;color:#746e66}
+.sourceLinks a{max-width:100%;padding:7px 10px;border:1px solid #d8d0c4;color:#292622;font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+@media(max-width:600px){
+  header{height:50px;padding:0 16px}
+  .brand{font-size:17px}
+  .my{width:32px;height:32px;font-size:9px}
+  .hero{min-height:0}
+  .hero>div{padding:34px 18px 30px}
+  .hero h1{margin-bottom:14px;font-size:28px;line-height:1.3}
+  .hero p{font-size:13px;line-height:1.55}
+  .uploadActions{gap:7px;margin-top:22px}
+  .uploadActions button,.uploadActions label{min-height:44px;padding:0 14px;font-size:13px}
+  .hero>img{max-height:220px}
+  .collection{padding:38px 14px}
+  .collection h2{font-size:25px}
+  .overlay{padding:0;overflow-x:hidden;overflow-y:auto;overscroll-behavior:contain;background:#f6f2ea}
+  .detail{display:block;width:100%;max-width:none;min-height:100dvh;margin:0;overflow:hidden}
+  .detailPhoto{display:block;width:100%;height:38vh;min-height:240px;max-height:360px;object-fit:cover}
+  .detailBody{padding:24px 18px 72px}
+  .detailBody>small{font-size:12px}
+  .detailBody h2{margin:12px 0 10px;font-size:clamp(24px,7vw,31px);line-height:1.18;letter-spacing:-.035em}
+  .detailBody>p{font-size:13px;line-height:1.5}
+  .fields{grid-template-columns:1fr;margin:20px 0}
+  .field{padding:11px 4px}
+  .field small{font-size:11px}
+  .field b,.field a{font-size:13px;line-height:1.45}
+  .detail article{padding:18px 0}
+  .detail article h4{margin-bottom:8px;font-size:15px}
+  .detail article p{font-size:14px;line-height:1.65}
+  .detail .x{position:fixed;top:calc(env(safe-area-inset-top) + 10px);right:12px;z-index:60;display:grid;width:42px;height:42px;padding:0;place-items:center;border:1px solid rgba(255,255,255,.45);border-radius:50%;background:rgba(24,21,19,.84);box-shadow:0 3px 14px rgba(0,0,0,.2);color:#fff;font-size:28px;line-height:1}
+}

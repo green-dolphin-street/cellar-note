@@ -32,7 +32,27 @@ export default function App(){
   async function resizeImage(file){const bitmap=await createImageBitmap(file);const scale=Math.min(1,2048/Math.max(bitmap.width,bitmap.height)),canvas=document.createElement("canvas");canvas.width=Math.round(bitmap.width*scale);canvas.height=Math.round(bitmap.height*scale);canvas.getContext("2d").drawImage(bitmap,0,0,canvas.width,canvas.height);bitmap.close();return canvas.toDataURL("image/jpeg",.9)}
   async function requestAnalysis(image,meta,access){let last;for(let attempt=0;attempt<3;attempt++){const r=await fetch("/api/analyze",{method:"POST",headers:{"content-type":"application/json","x-upload-code":access},body:JSON.stringify({image,metadata:meta})}),data=await r.json();if(r.ok)return data;if(r.status===401||r.status===400||r.status===413||r.status===402||r.status===429&&attempt===2)throw Error(data.error||"분석에 실패했습니다.");last=Error(data.error||"분석에 실패했습니다.");if(r.status!==429&&r.status<500)throw last;await new Promise(ok=>setTimeout(ok,attempt===0?1000:3000))}throw last}
   async function handleFile(file){if(!file||busyRef.current)return;busyRef.current=true;setUploading(true);setNotice("");try{const meta=await metadata(file),image=await resizeImage(file),access=sessionStorage.getItem("cellar-note-upload-code")||"";setPreview(image);const data=await requestAnalysis(image,meta,access),wine={...data.wine,...meta,id:String(Date.now()),image};setWines(v=>[wine,...v]);setSelected(wine);if(data.usage?.estimatedUsd){const month=new Date().toISOString().slice(0,7),saved=JSON.parse(localStorage.getItem("cellar-note-usage")||"{}");saved[month]=(saved[month]||0)+data.usage.estimatedUsd;localStorage.setItem("cellar-note-usage",JSON.stringify(saved))}setNotice("와인 분석과 기록 저장을 완료했습니다.")}catch(e){if(e.message.includes("권한")){sessionStorage.removeItem("cellar-note-upload-code");setAccount(true)}setNotice(e.message)}finally{busyRef.current=false;setUploading(false)}}
-  const Field=({label,value,link})=><div className="field"><small>{label}</small>{link&&value?<a href={link} target="_blank" rel="noreferrer">{value} ↗</a>:<b>{value||blank}</b>}</div>;
+  const cleanUrl=(value)=>{
+    if(!value)return "";
+    try{
+      const url=new URL(value);
+      ["utm_source","utm_medium","utm_campaign","utm_content","utm_term"].forEach(key=>url.searchParams.delete(key));
+      return url.toString();
+    }catch{return value}
+  };
+  const RichText=({text})=>{
+    const value=String(text||blank).replace(/\(\[([^\]]+)\]\((https?:\/\/[^)]+)\)\)/g,"[$1]($2)");
+    const pattern=/\[([^\]]+)\]\((https?:\/\/[^)]+)\)/g,parts=[];
+    let cursor=0,match;
+    while((match=pattern.exec(value))){
+      if(match.index>cursor)parts.push(value.slice(cursor,match.index));
+      parts.push(<a key={`${match.index}-${match[2]}`} href={cleanUrl(match[2])} target="_blank" rel="noreferrer">{match[1]} ↗</a>);
+      cursor=pattern.lastIndex;
+    }
+    if(cursor<value.length)parts.push(value.slice(cursor));
+    return <>{parts}</>;
+  };
+  const Field=({label,value,link})=><div className="field"><small>{label}</small>{link&&value?<a href={cleanUrl(link)} target="_blank" rel="noreferrer">{value} ↗</a>:<b>{value||blank}</b>}</div>;
   return <main>
     <header><a className="brand" href="#">Cellar Note</a><button className="my" onClick={()=>setAccount(true)}>MY</button></header>
     <section className="hero"><div><h1>와타시,<br/>이 와인들을 잊고싶지 않아...</h1><p>마신 병과 그날의 한 끼를 한곳에 기록합니다.</p><div className="uploadActions"><button onClick={()=>choose(cameraRef)}>사진 찍기</button><button className="quiet" onClick={()=>choose(albumRef)}>앨범에서 선택</button></div></div><img src="/dionysus-hero.png" alt="포도와 디오니소스 일러스트"/></section>
@@ -43,7 +63,8 @@ export default function App(){
       <div className="grid">{filtered.map(w=><button className="card" key={w.id} onClick={()=>setSelected(w)}><img src={w.image}/><div><small>{w.country} · {w.region}</small><h3>{w.name}</h3><p>{w.winery} {w.vintage&&`· ${w.vintage}`}</p></div></button>)}<button className="add" onClick={()=>choose(albumRef)}>＋<span>기록 추가</span></button></div>
     </section>
     {selected&&<div className="overlay" onClick={()=>setSelected(null)}><section className="detail" onClick={e=>e.stopPropagation()}><button className="x" onClick={()=>setSelected(null)}>×</button><img className="detailPhoto" src={selected.image}/><div className="detailBody"><small>{selected.country} / {selected.region}</small><h2>{selected.name}</h2><p>{selected.winery} · {selected.vintage||blank}</p><div className="fields"><Field label="품종" value={selected.grapes?.join(", ")}/><Field label="아펠라시옹·떼루아" value={selected.appellation}/><Field label="마신 날짜" value={selected.consumedDate}/><Field label="장소·GPS" value={selected.location}/><Field label="가격 (KRW)" value={selected.priceKrw}/><Field label="구매처" value={selected.purchasedAt}/><Field label="Vivino" value={selected.vivinoRating} link={selected.vivinoUrl}/><Field label="Wine Spectator" value={selected.wsScore}/><Field label="도수" value={selected.alcohol}/><Field label="내 점수" value={selected.personalRating}/><Field label="공식 페이지" value={selected.officialUrl?"열기":""} link={selected.officialUrl}/></div>
-      {[["한 잔 요약",selected.summary],["사람들의 코멘트",selected.crowd],["재미있는 정보",selected.funFact],["추천 페어링",selected.pairing],["그날 함께 먹은 음식",selected.consumedFoods?.join(" · ")||"확인되지 않음"]].map(([a,b])=><article key={a}><h4>{a}</h4><p>{b||blank}</p></article>)}
+      {[["한 잔 요약",selected.summary],["사람들의 코멘트",selected.crowd],["재미있는 정보",selected.funFact],["추천 페어링",selected.pairing],["그날 함께 먹은 음식",selected.consumedFoods?.join(" · ")||"확인되지 않음"]].map(([a,b])=><article key={a}><h4>{a}</h4><p><RichText text={b}/></p></article>)}
+      {selected.sources?.length>0&&<div className="sourceLinks"><small>참고한 페이지</small>{selected.sources.map((source,index)=><a key={`${source.url}-${index}`} href={cleanUrl(source.url)} target="_blank" rel="noreferrer">{source.label||source.title||`출처 ${index+1}`} ↗</a>)}</div>}
       <button className="delete" onClick={()=>{setWines(v=>v.filter(w=>w.id!==selected.id));setSelected(null)}}>기록 삭제</button></div></section></div>}
     {account&&<div className="overlay"><form className="account" onSubmit={login}><button type="button" className="x" onClick={()=>setAccount(false)}>×</button><h2>MY</h2><p>공개 열람은 누구나 가능하고 사진 분석만 로그인이 필요합니다.</p>{unlocked()?<><b>사진 분석 로그인 상태</b><small>이번 달 이 브라우저의 예상 사용액: ${(JSON.parse(localStorage.getItem("cellar-note-usage")||"{}")[new Date().toISOString().slice(0,7)]||0).toFixed(3)}</small><button type="button" className="quiet" onClick={()=>{sessionStorage.removeItem("cellar-note-upload-code");setAccount(false)}}>로그아웃</button></>:<><label>관리자 로그인<input type="password" value={code} onChange={e=>setCode(e.target.value)} required/></label><button>로그인</button></>}</form></div>}
     {uploading&&<div className="loading"><img src={preview} alt="분석 중"/><b>사진을 줄이고 와인을 분석하고 있어요…</b></div>}
