@@ -3,9 +3,11 @@ create table if not exists public.wines (
   data jsonb not null default '{}'::jsonb,
   image_url text not null default '',
   created_at timestamptz not null default now(),
-  updated_at timestamptz not null default now()
+  updated_at timestamptz not null default now(),
+  deleted_at timestamptz
 );
 
+alter table public.wines add column if not exists deleted_at timestamptz;
 alter table public.wines enable row level security;
 
 revoke all on table public.wines from anon, authenticated;
