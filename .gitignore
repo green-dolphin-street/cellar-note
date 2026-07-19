@@ -4,3 +4,8 @@ PRIVATE_PROJECT_NOTES*.md
 # JavaScript build output
 node_modules/
 dist/
+
+# Local credentials
+.env
+.env.*
+!.env.example
