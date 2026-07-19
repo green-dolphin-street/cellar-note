@@ -21,6 +21,14 @@
 .purchaseEditor{display:grid;gap:8px;padding:14px 0;border-top:1px solid #d8d0c4}
 .purchaseEditor>div{display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:6px}
 .purchaseEditor button{padding:8px}
+.sectionLabel{margin:28px 0 10px;font-family:"Noto Serif KR";font-size:18px}
+.experienceList{display:grid;gap:8px}
+.experienceList .experience{padding:13px;border:1px solid #d8d0c4}
+.experienceList .experience p{margin:4px 0}
+.experienceList .experience b{color:#292622;font-size:11px}
+.emptyNote{color:#746e66;font-size:13px}
+.eventEditor{display:grid;gap:10px;padding:14px 0;border-top:1px solid #d8d0c4}
+.eventCard{display:grid;gap:7px;padding:12px;border:1px solid #d8d0c4}
 
 @media(max-width:600px){
   header{height:50px;padding:0 16px}
